@@ -1,11 +1,9 @@
 <!-- rmarkdown v1 -->
 ---
 title: "Reproducible Research: Peer Assessment 1"
-author: "Mariano Fiorentino"
-date: "03/11/2016"
 output: 
-    html_document:
-        keep_md: true
+  html_document:
+    keep_md: true
 ---
 
 It is now possible to collect a large amount of data about personal movement using activity monitoring devices such as a Fitbit, Nike Fuelband, or Jawbone Up. These type of devices are part of the “quantified self” movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. But these data remain under-utilized both because the raw data are hard to obtain and there is a lack of statistical methods and software for processing and interpreting the data.
@@ -232,4 +230,5 @@ with(aggregateStepsByIntervalDayType, xyplot(x ~ Interval|DayType, type="l",
 ```
 
 ![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9-1.png)
+
 The time series plot of the average number of steps taken, shows a different pattern between  the weekend and the weekdays.
