@@ -15,7 +15,8 @@ This assignment makes use of data from a personal activity monitoring device. Th
 ### Loading and preprocessing the data
 
 
-```{r, echo = TRUE}
+
+```r
 library(dplyr, quietly = TRUE)
 library(lattice)
 library(hash)
@@ -33,10 +34,28 @@ dataSet$date <- as.Date(dataSet$date)
 print(dataSet)
 ```
 
+```
+## Source: local data frame [17,568 x 3]
+## 
+##    steps       date interval
+##    (int)     (date)    (int)
+## 1     NA 2012-10-01        0
+## 2     NA 2012-10-01        5
+## 3     NA 2012-10-01       10
+## 4     NA 2012-10-01       15
+## 5     NA 2012-10-01       20
+## 6     NA 2012-10-01       25
+## 7     NA 2012-10-01       30
+## 8     NA 2012-10-01       35
+## 9     NA 2012-10-01       40
+## 10    NA 2012-10-01       45
+## ..   ...        ...      ...
+```
+
 ### What is mean total number of steps taken per day?
 
-```{r, echo = TRUE}
 
+```r
 cleanSet <- dataSet[complete.cases(dataSet),]
 aggregateStepsByDay <- aggregate(cleanSet$steps, by=list(day=cleanSet$date), FUN=sum)
 histogram(aggregateStepsByDay$x,
@@ -44,18 +63,32 @@ histogram(aggregateStepsByDay$x,
           xlab="Steps",
           breaks = 25,
           main="Total number of steps taken each day")
-
 ```
 
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2-1.png)
+
 ### Mean and median number of steps taken each day
-```{r, echo = TRUE}
+
+```r
 mean(aggregateStepsByDay$x)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(aggregateStepsByDay$x)
+```
+
+```
+## [1] 10765
 ```
 
 ## What is the average daily activity pattern?
 
-```{r, echo = TRUE}
+
+```r
 cleanSet <- dataSet[complete.cases(dataSet),]
 aggregateStepsByInterval <- aggregate(cleanSet$steps, 
                                       by=list(Interval=cleanSet$interval), 
@@ -63,12 +96,14 @@ aggregateStepsByInterval <- aggregate(cleanSet$steps,
 with(aggregateStepsByInterval, xyplot(x ~ Interval, type="l",
                                       ylab="Steps",
                                       main="Time series plot of the average number of steps taken"))
-
 ```
+
+![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4-1.png)
 
 ### The 5-minute interval that, on average, contains the maximum number of steps
 
-```{r, echo = TRUE}
+
+```r
 maxMean <- max(aggregateStepsByInterval$x)
 for (idx in 1:nrow(aggregateStepsByInterval)) {
     
@@ -79,18 +114,41 @@ for (idx in 1:nrow(aggregateStepsByInterval)) {
 }
 ```
 
+```
+## [1] 835
+```
+
 ## Imputing missing values
 
 ### Total number of missing values in the dataset
-```{r, echo = TRUE}
+
+```r
 missingSet <- tbl_df(dataSet[!complete.cases(dataSet),])
 missingSet
 ```
 
+```
+## Source: local data frame [2,304 x 3]
+## 
+##    steps       date interval
+##    (int)     (date)    (int)
+## 1     NA 2012-10-01        0
+## 2     NA 2012-10-01        5
+## 3     NA 2012-10-01       10
+## 4     NA 2012-10-01       15
+## 5     NA 2012-10-01       20
+## 6     NA 2012-10-01       25
+## 7     NA 2012-10-01       30
+## 8     NA 2012-10-01       35
+## 9     NA 2012-10-01       40
+## 10    NA 2012-10-01       45
+## ..   ...        ...      ...
+```
+
 ###  Filling the missing values in the dataset. 
 The strategy is to use the mean of every 5-minute interval
-```{r, echo = TRUE}
 
+```r
 myHash <- hash(aggregateStepsByInterval$Interval,aggregateStepsByInterval$x)
 intervals <- 1:nrow(missingSet)
 for (idx in intervals) {
@@ -100,15 +158,32 @@ for (idx in intervals) {
 dataSetWithMissing <- bind_rows(cleanSet, missingSet)
 dataSetWithMissing <- dataSetWithMissing[order(dataSetWithMissing$date),]
 dataSetWithMissing
+```
 
+```
+## Source: local data frame [17,568 x 3]
+## 
+##    steps       date interval
+##    (int)     (date)    (int)
+## 1      1 2012-10-01        0
+## 2      0 2012-10-01        5
+## 3      0 2012-10-01       10
+## 4      0 2012-10-01       15
+## 5      0 2012-10-01       20
+## 6      2 2012-10-01       25
+## 7      0 2012-10-01       30
+## 8      0 2012-10-01       35
+## 9      0 2012-10-01       40
+## 10     1 2012-10-01       45
+## ..   ...        ...      ...
 ```
 
 ###  Histogram and mean of the new dataset. 
 After the insertion of missing values there is change in the median and in the mean value, and the percentage of total number of steps taken around the mean value now is bigger. 
 
 
-```{r, echo = TRUE}
 
+```r
 aggregateStepsByDayNew <- aggregate(dataSetWithMissing$steps, by=list(day=dataSetWithMissing$date), FUN=sum)
 
 histogram(aggregateStepsByDayNew$x,
@@ -117,15 +192,30 @@ histogram(aggregateStepsByDayNew$x,
           breaks = 25,
           col = "green",
           main="Total number of steps taken each day after the input of missing data")
+```
 
+![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8-1.png)
+
+```r
 mean(aggregateStepsByDayNew$x)
+```
+
+```
+## [1] 10749.77
+```
+
+```r
 median(aggregateStepsByDayNew$x)
+```
+
+```
+## [1] 10641
 ```
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-```{r, echo = TRUE}
 
+```r
 isweekend <- c("Saturday","Sunday")
 dataSetWithMissing$type <- weekdays(dataSetWithMissing$date) %in% isweekend
 dataSetWithMissing$type <- as.factor(dataSetWithMissing$type)
@@ -140,4 +230,6 @@ with(aggregateStepsByIntervalDayType, xyplot(x ~ Interval|DayType, type="l",
                                       layout=c(1,2),
                                       main="Time series plot of the average number of steps taken"))
 ```
+
+![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9-1.png)
 The time series plot of the average number of steps taken, shows a different pattern between  the weekend and the weekdays.
